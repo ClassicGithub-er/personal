@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Tactical Edge Prototype</title>
+<style>
+  body { margin:0; background:#111; overflow:hidden; }
+  canvas { display:block; }
+  #menu {
+    position:absolute; top:0; left:0; width:100%; height:100%;
+    display:flex; justify-content:center; align-items:center;
+    color:white; font-size:48px; background:rgba(0,0,0,0.8);
+    text-align:center; white-space:pre-line;
+  }
+</style>
+</head>
+<body>
+<div id="menu">Click to Start</div>
+<canvas id="game"></canvas>
+<script>
+const canvas=document.getElementById('game');
+const ctx=canvas.getContext('2d');
+const menu=document.getElementById('menu');
+function resize(){canvas.width=innerWidth;canvas.height=innerHeight;}resize();addEventListener('resize',resize);
+
+let keys={};addEventListener('keydown',e=>keys[e.key]=true);addEventListener('keyup',e=>keys[e.key]=false);
+let started=false;
+menu.addEventListener('click',()=>{started=true;menu.style.display='none';resetGame();});
+
+class Player{
+  constructor(x,y,color){this.x=x;this.y=y;this.color=color;this.r=20;this.speed=3;this.alive=true;}
+  update(){if(!this.alive)return;
+    if(keys['w'])this.y-=this.speed;
+    if(keys['s'])this.y+=this.speed;
+    if(keys['a'])this.x-=this.speed;
+    if(keys['d'])this.x+=this.speed;
+  }
+  draw(){if(!this.alive)return;
+    ctx.fillStyle=this.color;
+    ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fill();
+  }
+}
+
+class Enemy{
+  constructor(){this.x=Math.random()*canvas.width;this.y=Math.random()*canvas.height;this.r=20;this.speed=1.5;this.alive=true;}
+  update(){if(!this.alive)return;
+    let ang=Math.atan2(p1.y-this.y,p1.x-this.x);
+    this.x+=Math.cos(ang)*this.speed;
+    this.y+=Math.sin(ang)*this.speed;
+  }
+  draw(){if(!this.alive)return;
+    ctx.fillStyle='red';
+    ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fill();
+  }
+}
+
+let p1;
+let enemies=[];
+let bullets=[];
+let score=0;
+
+function resetGame(){p1=new Player(canvas.width/2,canvas.height/2,'cyan');enemies=[];bullets=[];score=0;spawnEnemies();}
+
+function spawnEnemies(){for(let i=0;i<5;i++)enemies.push(new Enemy());}
+
+addEventListener('click',e=>{
+  if(!started||!p1.alive)return;
+  let angle=Math.atan2(e.clientY-p1.y,e.clientX-p1.x);
+  bullets.push({x:p1.x,y:p1.y,dx:Math.cos(angle)*7,dy:Math.sin(angle)*7,r:5});
+});
+
+function update(){if(!started)return;
+  p1.update();
+  enemies.forEach(e=>e.update());
+  bullets.forEach(b=>{b.x+=b.dx;b.y+=b.dy;});
+  bullets=bullets.filter(b=>b.x>0&&b.x<canvas.width&&b.y>0&&b.y<canvas.height);
+
+  bullets.forEach(b=>{
+    enemies.forEach(e=>{
+      if(e.alive&&Math.hypot(b.x-e.x,b.y-e.y)<e.r+b.r){e.alive=false;score++;}
+    });
+  });
+
+  enemies.forEach(e=>{
+    if(e.alive&&Math.hypot(p1.x-e.x,p1.y-e.y)<p1.r+e.r){p1.alive=false;gameOver();}
+  });
+
+  enemies=enemies.filter(e=>e.alive);
+  if(enemies.length<3)enemies.push(new Enemy());
+}
+
+function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);
+  if(!started)return;
+  p1.draw();
+  enemies.forEach(e=>e.draw());
+  ctx.fillStyle='white';
+  bullets.forEach(b=>{ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2);ctx.fill();});
+
+  ctx.fillStyle='white';ctx.font='24px sans-serif';ctx.fillText('Score: '+score,20,40);
+}
+
+function gameOver(){
+  menu.innerText='You Died\nScore: '+score+'\nClick to Restart';
+  menu.style.display='flex';
+  started=false;
+}
+
+function loop(){update();draw();requestAnimationFrame(loop);}loop();
+</script>
+</body>
+</html>
