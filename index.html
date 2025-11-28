@@ -1,0 +1,71 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>
+            Dashboard -- GluXV
+        </title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+                text-align: center;
+                font-family: Cambria;
+                box-sizing: border-box;
+                color: antiquewhite;
+                background: rgb(16, 16, 16);
+            }
+
+            h1 {
+                font-size: 150px;
+                font-weight: bold;
+                transition: 750ms;
+                display: inline-block;
+                -webkit-text-stroke: 3px antiquewhite;
+            }
+
+            h1:hover {
+                color: transparent;
+            }
+
+            .text-box {
+                border: 2px solid antiquewhite;
+                border-radius: 12px;
+                padding: 20px 30px;
+                background: transparent;
+                font-size: 30px;
+                margin: 10px 150px;
+                transition: all 1s;
+                position: relative;
+                display: inline-block;
+                overflow: hidden;
+            }
+
+            .text-box:before {
+                content: "OPEN";
+                position: absolute;
+                transform: translateY(-100%);
+                display: flex;
+                transition: 1000ms;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                justify-content: center;
+                align-items: center;
+                background: rgb(16, 16, 16);
+            }
+
+            .text-box:hover:before {
+                transform: translateY(0);
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Dashboard</h1>
+        <br>
+        <a class="text-box" href="http://10.0.0.23:5000">Dashboard</a><br>
+        <a class="text-box" href="http://10.0.0.23:5001">Shared Notes</a><br>
+        <a class="text-box" href="http://10.0.0.23:5002">File Sharing</a><br>
+        <a class="text-box" href="http://10.0.0.23:5003">Tuff Background</a><br>
+    </body>
+</html>
